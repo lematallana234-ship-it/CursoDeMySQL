@@ -27,8 +27,8 @@ select * from medicinas;
 
 desc medicinas;
 
-select * from medicinas;
 insert into medicinas
+
 values (
     1, 
     'Paracetamol', 
@@ -391,6 +391,21 @@ values (
     28
 );
 
+#Me permite modificar en los clinetes y i incluir telefono, coreo y direccion
+alter table clientes 
+add COLUMN email VARCHAR(20);
+
+UPDATE clientes
+set email = 'margarita@er.com'
+where cedula = '1352104851';
+
+alter table clientes 
+add COLUMN telefono VARCHAR(20);
+
+UPDATE clientes
+set telefono = '0952146320'
+where cedula = '1352104851';
+--  --
 create table pacientes_permanentes
 (
     Cedula_Cliente char (10),
@@ -418,6 +433,7 @@ add primary KEY (cedula_cliente, ID_Medicamento);
 select * from pacientes_permanentes;
 
 insert into pacientes_permanentes
+
 values (
     '1752879531',
     'Hipertension Arterial',
@@ -472,7 +488,6 @@ values (
 select * from medicinas;
 
 delete from pacientes_permanentes;
-delete from medicinas;
 
 create table clasificacion_medicinas 
 (
@@ -565,3 +580,73 @@ values (
 );
 
 select * from clasificacion_medicinas;
+
+# Creacion de latabla datos de la empresa
+CREATE table empresa(
+    ruc char (13),
+    razonsocial VARCHAR (100),
+    direccion VARCHAR(100),
+    telefono VARCHAR(14),
+    email VARCHAR(25)
+);
+
+insert into empresa values ('1754230589', 'Salud Total S.A', 'AV. 10 de agosto', '0996254612', 'jorje234@gmail.com' );
+
+SELECT * FROM empresa;
+
+
+#Creacion de las tablas de facturas y facturasdetalle
+create table facturas(
+    facturanumero CHAR(10) PRIMARY key,
+    fecha DATE,
+    cedula char (10),
+    total DECIMAL(15,2)
+);
+
+alter table facturas
+add constraint facturascedula_fk
+Foreign Key (cedula) REFERENCES clientes(cedula);
+
+insert into facturas values(
+    '0000000001','2025-12-12', '1352104851', 5.25
+);
+
+insert into facturas values(
+    '0000000002','2025-12-13', '1726367459', 7.60
+);
+
+create table facturadetalle(
+    facturanumero char(19),
+    medicamento_id int,
+    cantidad int,
+    precio decimal(15,2)
+);
+#validacion de clave primaria
+alter Table facturadetalle
+add PRIMARY key (facturanumero, medicamento_id);
+
+alter TABLE facturadetalle
+add constraint facturadetalle_cantidad_ck
+check (cantidad > 0);
+
+alter TABLE facturadetalle
+add constraint facturadetalle_precio_ck
+check (precio > 0);
+
+insert into facturadetalle VALUES('0000000001', 1, 12, 1.50);
+
+insert into facturadetalle VALUES(
+    '0000000001', 2, 12, 0.56
+);
+
+insert into facturadetalle VALUES(
+    '0000000002', 3, 12, 2.75
+);
+
+insert into facturadetalle VALUES(
+    '0000000002',4 , 12, 5.92
+);
+
+SELECT * FROM facturadetalle
+
+
