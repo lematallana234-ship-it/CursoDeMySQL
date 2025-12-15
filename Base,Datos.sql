@@ -649,4 +649,5 @@ insert into facturadetalle VALUES(
 
 SELECT * FROM facturadetalle
 
+-- hola
 
