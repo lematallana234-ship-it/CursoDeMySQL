@@ -663,28 +663,33 @@ INSERT INTO proveedor VALUES
 ('1700000000002', 'HealthCom', 'Andres Zotoz', 'soto@health.com');
 
 SELECT * FROM proveedor;
-
 -- TABLA PROVEEDOR_MEDICINAS
 CREATE TABLE proveedor_medicinas (
     proveedor_ruc CHAR(13),
     medicina_id INT,
     proveedor_precio DECIMAL(10,2),
     lote INT,
-    plazo INT,
+    plazo INT
+
+);
 
     -- CLAVE PRIMARIA (evita repetir proveedor con mismo precio)
-    PRIMARY KEY (proveedor_ruc, proveedor_precio),
+ALTER table proveedor_medicinas
+add PRIMARY KEY (proveedor_ruc, proveedor_precio);
 
     -- CLAVE FORÁNEA: proveedor debe existir
-    CONSTRAINT proveedor_fk
-        FOREIGN KEY (proveedor_ruc)
-        REFERENCES proveedor(ruc),
+
+alter TABLE proveedor_medicinas
+add CONSTRAINT proveedor_fk
+FOREIGN KEY (proveedor_ruc)
+REFERENCES proveedor(ruc);
 
     -- CLAVE FORÁNEA: medicina debe existir
-    CONSTRAINT medicina_proveedor_fk
-        FOREIGN KEY (medicina_id)
-        REFERENCES medicinas(id)
-);
+alter TABLE proveedor_medicinas
+add CONSTRAINT medicina_proveedor_fk
+FOREIGN KEY (medicina_id)
+REFERENCES medicinas(id)
+
 INSERT INTO proveedor_medicinas VALUES
 ('1700000000001', 1, 0.25, 100, 15),
 ('1700000000001', 2, 0.12, 200, 30),
