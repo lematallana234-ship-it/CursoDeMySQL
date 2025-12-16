@@ -334,7 +334,7 @@ values (
     'Pablo',
     'Cortez',
     'NAT',
-    20
+    20 
 );
 
 insert into clientes
@@ -649,5 +649,47 @@ insert into facturadetalle VALUES(
 
 SELECT * FROM facturadetalle
 
--- hola
+-- TABLA PROVEEDOR
+CREATE TABLE proveedor (
+    ruc CHAR(13) PRIMARY KEY,
+    nombre VARCHAR(100),
+    contacto VARCHAR(100),
+    email VARCHAR(100)
+);
 
+-- DATOS DE PROVEEDORES
+INSERT INTO proveedor VALUES
+('1700000000001', 'Bayer Ecuador', 'Luis Mayorga', 'mayorga@bayer.com'),
+('1700000000002', 'HealthCom', 'Andres Zotoz', 'soto@health.com');
+
+SELECT * FROM proveedor;
+
+-- TABLA PROVEEDOR_MEDICINAS
+CREATE TABLE proveedor_medicinas (
+    proveedor_ruc CHAR(13),
+    medicina_id INT,
+    proveedor_precio DECIMAL(10,2),
+    lote INT,
+    plazo INT,
+
+    -- CLAVE PRIMARIA (evita repetir proveedor con mismo precio)
+    PRIMARY KEY (proveedor_ruc, proveedor_precio),
+
+    -- CLAVE FORÁNEA: proveedor debe existir
+    CONSTRAINT proveedor_fk
+        FOREIGN KEY (proveedor_ruc)
+        REFERENCES proveedor(ruc),
+
+    -- CLAVE FORÁNEA: medicina debe existir
+    CONSTRAINT medicina_proveedor_fk
+        FOREIGN KEY (medicina_id)
+        REFERENCES medicinas(id)
+);
+INSERT INTO proveedor_medicinas VALUES
+('1700000000001', 1, 0.25, 100, 15),
+('1700000000001', 2, 0.12, 200, 30),
+('1700000000001', 3, 0.32, 300, 7),
+('1700000000002', 2, 0.10, 800, 7),
+('1700000000002', 3, 0.30, 250, 7);
+
+SELECT * FROM proveedor_medicinas;
