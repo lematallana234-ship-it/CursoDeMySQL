@@ -274,4 +274,3 @@ VALUES ('17000000002', 3, 0.30, 250, 7);
 
 SELECT * FROM proveedor_medicinas
 
-#
