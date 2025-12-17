@@ -32,39 +32,20 @@ check(
 update medicinas
 SET TIPO = 'GEN'
 
-
 insert into medicinas
-values (
-    1, 
-    'Paracetamol', 
-    'GEN',
-    1.50, 12,
-    '2026-01-01 00:00:00'
-);
-
+values (1,'Paracetamol', 'GEN', 1.50, 12, '2026-01-01 00:00:00');
 insert into medicinas
-values (
-    2, 
-    'Acetaminofen', 
-    'GEN',
-    0.56, 23,
-    '2027-01-01 00:00:00'
-);
-
+values (2, 'Acetaminofen', 'GEN', 0.56, 23,'2027-01-01 00:00:00');
 insert into medicinas
-values (
-    3, 
-    'Ibuprofeno', 
-    'COM',
-    2.75, 43,
-    '2028-01-01 00:00:00'
-);
-
+values (3, 'Ibuprofeno', 'COM', 2.75, 43,'2028-01-01 00:00:00');
 insert into medicinas
 values (4,'Losartan', 'GEN', 5.95, 62, '2029-01-01 00:00:00');
-
 insert into medicinas (id, nombre, precio, stock, fechaCaducidad)
 values (5, 'Formoterol', 25.40, 43, '2028-01-01 00:00:00');
+insert into medicinas
+values (6,'Metformina', 'GEN', 4.80, 59, '2029-08-17 00:00:00');
+insert into medicinas
+values (7,'Levotiroxina', 'GEN', 5.73, 110,'2028-12-12 00:00:00');
 
 DELETE FROM medicinas
 WHERE id=5
@@ -215,6 +196,10 @@ VALUES('1726367459', 1, 'Dolor', 'DIA', 'SI', 'ORAL', 30, 10.00);
 INSERT INTO pacientes_permanentes
 values('0912345678', 4, 'Presion', 'DIA', 'NO', 'ORAL', 60, 15.00);
 
+INSERT INTO pacientes_permanentes
+values('0923456789', 3, 'Inflamacion', 'SEM', 'SI', 'ORAL', 20, 7.50);
+
+SELECT * FROM pacientes_permanentes;
 -- ===============================
 -- CLASIFICACIÓN DE MEDICINAS
 -- ===============================
@@ -233,6 +218,12 @@ CREATE TABLE clasificacion_medicinas (
         REFERENCES medicinas(id)
 );
 
+INSERT INTO clasificacion_medicinas VALUES (1, 2); -- Paracetamol ↔ Acetaminofen
+INSERT INTO clasificacion_medicinas VALUES (2, 1); -- Acetaminofen ↔ Paracetamol
+INSERT INTO clasificacion_medicinas VALUES (3, 1); -- Ibuprofeno ↔ Paracetamol
+INSERT INTO clasificacion_medicinas VALUES (6, 4); -- Metformina ↔ Losartan
+
+SELECT * FROM clasificacion_medicinas;
 -- ===============================
 -- PROVEEDORES
 -- ===============================
@@ -243,6 +234,12 @@ CREATE TABLE proveedor (
     email VARCHAR(100)
 );
 
+INSERT INTO  proveedor
+VALUES('17000000001', 'Bayer Ecuador', 'Luis Mayorga', 'bayer@gmail.com');
+INSERT INTO  proveedor
+VALUES('17000000002', 'HealthCom', 'adres zotoso', 'soto@gmail.com');
+
+SELECT* FROM proveedor;
 -- ===============================
 -- PROVEEDOR_MEDICINAS
 -- ===============================
@@ -263,3 +260,18 @@ CREATE TABLE proveedor_medicinas (
         FOREIGN KEY (medicina_id)
         REFERENCES medicinas(id)
 );
+
+INSERT INTO  proveedor_medicinas
+VALUES ('17000000001', 1, 0.25, 100, 15);
+INSERT INTO  proveedor_medicinas
+VALUES ('17000000001', 2, 0.12, 200, 30);
+INSERT INTO  proveedor_medicinas
+VALUES ('17000000001', 3, 0.32, 300, 7);
+INSERT INTO  proveedor_medicinas
+VALUES ('17000000001', 1, 0.25, 100, 15);
+INSERT INTO  proveedor_medicinas
+VALUES ('17000000002', 3, 0.30, 250, 7);
+
+SELECT * FROM proveedor_medicinas
+
+#
