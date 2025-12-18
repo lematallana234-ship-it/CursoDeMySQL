@@ -274,3 +274,29 @@ VALUES ('17000000002', 3, 0.30, 250, 7);
 
 SELECT * FROM proveedor_medicinas
 
+-- ===============================
+-- MEDICINAS FRECUENTES
+-- ===============================
+CREATE TABLE medicinas_frecuentes (
+    cedula_cliente CHAR(10),
+    id_medicina INT,
+    frecuencia CHAR(3),
+    cantidad_promedio INT,
+    descuento DECIMAL(5,2) DEFAULT 0,
+    tipo_enfermedad VARCHAR(50),
+
+    PRIMARY KEY (cedula_cliente, id_medicina),
+
+    CONSTRAINT mf_cliente_fk
+        FOREIGN KEY (cedula_cliente)
+        REFERENCES clientes(cedula),
+
+    CONSTRAINT mf_medicina_fk
+        FOREIGN KEY (id_medicina)
+        REFERENCES medicinas(id),
+
+    CONSTRAINT mf_cantidad_ck CHECK (cantidad_promedio > 0),
+    CONSTRAINT mf_descuento_ck CHECK (descuento >= 0)
+);
+
+SELECT * FROM medicinas_frecuentes;
