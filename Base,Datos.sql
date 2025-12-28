@@ -63,7 +63,7 @@ values (
     5.95, 62,
     '2029-01-01 00:00:00'
 );
-                   --------------
+                   ----------
 
 select * from medicinas;
 -- ===============================
@@ -137,6 +137,9 @@ INSERT INTO facturas
  values('0000000002', '2025-01-16', '0912345678', 18.75);
 
 SELECT * FROM facturas;
+DELETE FROM facturas
+WHERE facturanumero = '0000000003'; 
+
 -- ===============================
 -- TABLA FACTURA DETALLE
 -- ===============================
@@ -240,6 +243,44 @@ INSERT INTO  proveedor
 VALUES('17000000002', 'HealthCom', 'adres zotoso', 'soto@gmail.com');
 
 SELECT* FROM proveedor;
+
+-- ===============================
+-- ORDEN DE COMPRA (CABECERA)
+-- ===============================
+CREATE TABLE orden_compra (
+    ordennumero CHAR(10) PRIMARY KEY,
+    fecha DATE NOT NULL,
+    proveedor_ruc CHAR(13),
+    FOREIGN KEY (proveedor_ruc) REFERENCES proveedor(ruc)
+);
+
+INSERT INTO orden_compra VALUES
+('OC00000001','2025-01-10','17000000001'),
+('OC00000002','2025-02-15','17000000002');
+
+SELECT* FROM orden_compra;
+-- ===============================
+-- ORDEN DE COMPRA DETALLE
+-- ===============================
+CREATE TABLE orden_compra_detalle (
+    ordennumero CHAR(10),
+    medicamento_id INT,
+    cantidad INT NOT NULL,
+    costo DECIMAL(10,2) NOT NULL,
+
+    PRIMARY KEY (ordennumero, medicamento_id),
+
+    FOREIGN KEY (ordennumero) REFERENCES orden_compra(ordennumero),
+    FOREIGN KEY (medicamento_id) REFERENCES medicinas(id)
+);
+
+INSERT INTO orden_compra_detalle VALUES
+('OC00000001', 36, 50, 1.25),
+('OC00000001', 40, 100, 0.45),
+('OC00000002', 27, 20, 25.00),
+('OC00000002', 19, 60, 1.75);
+
+SELECT* FROM orden_compra_detalle;
 -- ===============================
 -- PROVEEDOR_MEDICINAS
 -- ===============================

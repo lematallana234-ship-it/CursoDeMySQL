@@ -10,11 +10,25 @@ SELECT count(*) FROM medicinas;
 
 SELECT COUNT(*) FROM medicinas_frecuentes;
 
+SELECT COUNT(*) FROM facturas;
+
+SELECT COUNT(*) FROM facturadetalle;
+
 ----Consultar los datos de un cliente por su nemero de cédula 
 ----ejemplo:1000000006
 SELECT *
 FROM clientes
 WHERE cedula = '1000000006';
+
+SELECT 
+ e.direccion,
+    e.telefono,
+    e.email,
+    f.facturanumero,
+    f.fecha       ----- SE LLAMA 
+FROM facturas f
+JOIN clientes c on c.cedula = f.cedula     ---BUSCAR CON JOIN
+WHERE facturanumero = 'F'
 
 ---Caso: Proyeccion. Consultar  el correo de un cliente con su cedula
 SELECT 
@@ -29,6 +43,11 @@ SELECT
 from clientes
 WHERE cedula = '1000000006';
 
+SELECT 
+ cedula,
+ direccion
+from clientes
+WHERE direccion is NOT NULL;
 ---Caso: Consultar el nombre de medicina con su ID
 SELECT 
  nombre,
@@ -48,7 +67,7 @@ SELECT
  id,
  nombre
 FROM medicinas
-WHERE nombre LIKE 'D%';
+WHERE nombre LIKE 'v%';
 
 SELECT 
  cedula,
@@ -204,8 +223,35 @@ FROM
   clasificacion_medicinas mcg
 JOIN medicinas mcom on mcom.id = mcg.id_medicina
 JOIN medicinas mgen on mgen.id = mcg.id_medicina
+--- esto en la 7
+WHERE
+mcom.precio > 5
+and mgen.precio <5
 ;
 
+--Almacenar codigo sql en la base de datos
+CREATE View v_medicinagencom      
+AS
+SELECT
+  mcom.id, 
+  mcom.nombre as nombre_comercial,
+  mcom.precio,
+  mcg.alternativa,
+  mgen.nombre as nombre_generico,
+  mgen.precioas precio_geenerico,
+  mgen.precio - mgen.precio as diferencia
+FROM
+  clasificacion_medicinas mcg
+JOIN medicinas mcom on mcom.id = mcg.id_medicina
+JOIN medicinas mgen on mgen.id = mcg.id_medicina
+
+--- esto en la 7
+WHERE
+mcom.precio > 5
+and mgen.precio <5
+;
+
+select from vmedicinagencom;
 --- Caso: Presentar una fractura y sus detalles, que incluya,
 --        los datos de la farmacia: nombre, ruc, correo
 --        los datos del client:...
@@ -298,7 +344,19 @@ FROM facturadetalle fd
 JOIN medicinas m ON fd.medicamento_id = m.id
 WHERE fd.facturanumero = '0000000300'
 
+SELECT 
+fd.facturanumero,
+fd.medicamento_id,
+m.nombre,
+fd.percio,
+fd.cantidad,
+fd.precio * cantidad
+from 
+facturadetalle fd
+JOIN medicinas m on m.id =fd.medicamento_id
+WHERE fd.facturanumero='0000000300'
 
+DESC facturadetalle;
 -- =====================================
 -- 4. PIE DE FACTURA
 -- =====================================
@@ -325,3 +383,279 @@ SELECT
 FROM facturadetalle fd
 JOIN medicinas m ON fd.medicamento_id = m.id
 WHERE fd.facturanumero = '0000000200';
+
+SELECT 
+suma(fd.precio * fd.cantidad) as subtotal
+from 
+facturadetalle fd
+JOIN medicinas m on m.id =fd.medicamento_id
+WHERE fd.facturanumero='0000000300';
+
+   #OTRA MANERA
+    DESC facturas;
+   ALTER TABLE facturas       ---ELIMINAR DATOS 
+   DROP total;
+   DESC facturadetalle;
+
+# Consultar las medicinas declaradas en el plan de medicina frecuente 
+---La operación LEFT JOIN en base de dos tablas que dispongan de la restricción de clave foránea
+select COUNT(*) from medicinas;
+select COUNT(*) from medicinas_frecuentes;
+
+SELECT *
+FROM medicinas m
+JOIN medicinas_frecuentes mf on m.id = mf.id_medicina;
+
+SELECT *
+FROM medicinas m
+JOIN medicinas_frecuentes mf join medicinas m on m.id = mf.id_medicina;
+
+#Caso Lista ordenada de clientes pro nombre alfabetico 
+   #Un ordenamiento sobre un atributo de forma descendente
+
+SELECT
+nombre, fechanacimiento
+from clientes
+ORDER BY fechanacimiento DESC
+LIMIT 1;
+
+---Caso:Conocer las 5 medicinas mas caras que tenemos 
+SELECT
+    nombre,
+    precio
+FROM medicinas
+ORDER BY precio DESC
+LIMIT 5;
+
+---Caso: Conocer las 5 medicinas mas baratas 
+SELECT
+    nombre,
+    precio
+FROM medicinas
+ORDER BY precio ASC
+LIMIT 5;
+
+---Caso:La medicina comercial mas barata 
+SELECT
+    nombre,
+    precio
+FROM medicinas
+WHERE tipo = 'COM'
+ORDER BY precio ASC
+LIMIT 1;
+
+---Caso: La medicina generica mas cara 
+SELECT
+    nombre,
+    precio
+FROM medicinas
+WHERE tipo = 'GEN'
+ORDER BY precio DESC
+LIMIT 1;
+
+---Caso: Las 5 medicinas comerciales con el menor descuento 
+SELECT DISTINCT
+    m.id,
+    m.nombre,
+    mf.descuento
+FROM medicinas_frecuentes mf
+JOIN medicinas m
+    ON m.id = mf.id_medicina
+WHERE m.id IN (
+    SELECT m2.id
+    FROM medicinas_frecuentes mf2
+    JOIN medicinas m2
+        ON m2.id = mf2.id_medicina
+    WHERE m2.tipo = 'GEN'
+)
+ORDER BY mf.descuento;
+
+
+select * FROM medicinas_frecuentes WHERE id_medicina=6;
+
+SELECT
+    m.id,
+    m.nombre,
+    MIN(mf.descuento) AS descuento
+FROM medicinas m
+JOIN medicinas_frecuentes mf
+    ON m.id = mf.id_medicina
+WHERE m.tipo = 'GEN'
+GROUP BY m.id, m.nombre
+ORDER BY descuento ASC
+LIMIT 5;
+
+---Csao: agrupamiento 
+---Un agrupamiento sobre un atributo que no posee una restricción de unicidad y una operación de conteo
+SELECT 
+    tipo,
+    COUNT(*) AS Numero
+FROM clientes
+GROUP BY tipo;
+
+DESC medicinas;
+
+SELECT 
+id,
+nombre,
+precio,
+stock,
+precio * stock
+from medicinas;
+
+SELECT
+    tipo,
+    SUM(precio * stock) AS total
+FROM medicinas
+GROUP BY tipo;
+
+---Caso: Factura detalle. Valor monetario por medicina vendida 
+SELECT
+medicamento_id,
+cantidad,
+precio,
+cantidad * precio as subtotal
+from facturadetalle
+ORDER BY medicamento_id;
+
+SELECT 
+    m.nombre,
+    fd.medicamento_id,
+    SUM(fd.cantidad * fd.precio) AS total
+FROM facturadetalle fd
+JOIN medicinas m
+    ON m.id = fd.medicamento_id
+GROUP BY m.nombre, fd.medicamento_id
+ORDER BY fd.medicamento_id;
+
+---Caso: El cliente que mas compra en la farmacia
+SELECT 
+    fd.facturanumero,
+    f.cedula,
+    c.nombre,
+    SUM(fd.cantidad * fd.precio) AS total
+FROM facturadetalle fd
+JOIN facturas f 
+    ON f.facturanumero = fd.facturanumero
+JOIN clientes c
+    ON c.cedula = f.cedula
+GROUP BY fd.facturanumero, f.cedula, c.nombre
+ORDER BY total DESC
+LIMIT 1;
+
+#CASO: Kardex de la Farmacia.
+---    De una medicina, quiero los movimientos de entrada y salida. 
+---      -Stock inicial por periodos.
+---      -Compras, Alta por inventario, Donaciones, etc.
+---      -Ventas, Bajas de inventario, Vencimientos, etc.
+---    Resultado: Stock Final.
+---    Metodos para valorar: PROMEDIO, FIFO Y LIFO
+
+-- ===============================
+-- CASO 26/12/25
+-- MOVIMIENTOS DE VENTAS
+-- ===============================
+CREATE OR REPLACE VIEW v_mov_ventas AS
+SELECT
+    f.fecha,
+    fd.medicamento_id,
+    m.nombre AS medicina,
+    f.facturanumero AS documento,
+    'VENTA' AS tipo_mov,
+    m.stock AS stock_actual,
+    fd.cantidad AS salida
+FROM facturadetalle fd
+JOIN facturas f
+    ON f.facturanumero = fd.facturanumero
+JOIN medicinas m
+    ON m.id = fd.medicamento_id;
+
+
+-- ===============================
+-- MOVIMIENTOS DE COMPRAS
+-- ===============================
+CREATE OR REPLACE VIEW v_mov_compras AS
+SELECT
+    oc.fecha,
+    ocd.medicamento_id,
+    m.nombre AS medicina,
+    oc.ordennumero AS documento,
+    'COMPRA' AS tipo_mov,
+    m.stock AS stock_actual,
+    ocd.cantidad AS entrada
+FROM orden_compra_detalle ocd
+JOIN orden_compra oc
+    ON oc.ordennumero = ocd.ordennumero
+JOIN medicinas m
+    ON m.id = ocd.medicamento_id;
+
+
+-- ===============================
+-- MOVIMIENTO GENERAL (COMPRAS + VENTAS)
+-- ===============================
+SELECT
+    fecha,
+    medicamento_id,
+    medicina,
+    documento,
+    tipo_mov,
+    stock_actual,
+    entrada,
+    0 AS salida
+FROM v_mov_compras
+
+UNION ALL
+
+SELECT
+    fecha,
+    medicamento_id,
+    medicina,
+    documento,
+    tipo_mov,
+    stock_actual,
+    0 AS entrada,
+    salida
+FROM v_mov_ventas
+ORDER BY fecha;
+
+SELECT
+    f.fecha,
+    fd.medicamento_id,
+    m.nombre AS medicina,
+    f.facturanumero AS documento,
+    'VENTA' AS tipo_mov,
+    sum(fd.cantidad)
+    over(PARTITION BY fd.medicamento_id ORDER BY f.fecha) as acumulado,
+    m.stock AS stock_actual,
+    fd.cantidad AS salida
+FROM facturadetalle fd
+JOIN facturas f
+    ON f.facturanumero = fd.facturanumero
+JOIN medicinas m
+    ON m.id = fd.medicamento_id;
+
+create VIEW v_movimiento as
+SELECT
+*
+FROM v_mov_compras
+WHERE medicamento_id=7
+ORDER BY fecha;
+
+SELECT
+    fecha,
+    medicamento_id,
+    medicina,
+    documento,
+    tipo_mov,
+    stock_actual,
+    cantidad,
+    SUM(
+        CASE
+            WHEN tipo_mov = 'COMPRA' THEN cantidad
+            WHEN tipo_mov = 'VENTA'  THEN -cantidad
+        END
+    ) OVER (
+        PARTITION BY medicamento_id
+        ORDER BY fecha
+    ) AS saldo
+FROM v_movimiento;
