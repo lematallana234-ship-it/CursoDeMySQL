@@ -593,6 +593,7 @@ JOIN medicinas m
 -- ===============================
 -- MOVIMIENTO GENERAL (COMPRAS + VENTAS)
 -- ===============================
+CREATE OR REPLACE VIEW v_movimiento AS
 SELECT
     fecha,
     medicamento_id,
@@ -615,8 +616,8 @@ SELECT
     stock_actual,
     0 AS entrada,
     salida
-FROM v_mov_ventas
-ORDER BY fecha;
+FROM v_mov_ventas;
+
 
 SELECT
     f.fecha,
@@ -659,3 +660,74 @@ SELECT
         ORDER BY fecha
     ) AS saldo
 FROM v_movimiento;
+
+
+CREATE OR REPLACE VIEW v_kardex AS
+SELECT
+    fecha,
+    medicamento_id,
+    medicina,
+    documento,
+    tipo_mov,
+    stock_actual,
+    entrada,
+    salida,
+    SUM(
+        CASE
+            WHEN tipo_mov = 'COMPRA' THEN entrada
+            WHEN tipo_mov = 'VENTA'  THEN -salida
+        END
+    ) OVER (
+        PARTITION BY medicamento_id
+        ORDER BY fecha
+    ) AS saldo
+FROM v_movimiento;
+
+--- Caso: stock minimo 
+--       - Stock de seguridad
+--       - Garantizar que siempre exista disponibilidad de una determinada medicina 
+--       - 
+use saludtotal;
+CREATE Table control_stock(
+    medicina_id int,
+    stock_minimo int
+);
+
+alter table control_stock
+add PRIMARY KEY (medicina_id);
+
+alter Table control_stock
+add constraint control_stock_medicina_id_fk
+Foreign Key (medicina_id)
+REFERENCES medicinas(id);
+
+INSERT Into control_stock
+VALUES(36, 6);
+
+--Consulta del kardex de medicina_id = 36
+SELECT
+fecha,
+medicinas_id,
+medicinas,
+tipo_mov,
+cantidad,
+saldo
+from v_kardex k
+JOIN control_stock cs on cs.medicina_id=k.medicamento_id
+WHERE
+medicamento_id = 64
+
+SELECT 
+medicina_id,
+COUNT(*)
+FROM
+v_kardex
+GROUP BY medicamento_id
+ORDER BY count(*) DESC;
+
+SELECT * FROM v_kardex WHERE medicamento_id;
+
+UPDATE medicinas set stock = 12 WHERE id =64;
+
+INSERT into control_stock VALUES (64,15);
+
